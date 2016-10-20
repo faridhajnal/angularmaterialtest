@@ -1,0 +1,194 @@
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+
+    .toolbardemoScrollShrink .face {
+      width: 48px;
+      margin: 16px;
+      border-radius: 48px;
+      border: 1px solid #ddd; }
+
+      div[data-angular-treeview] {
+  /* prevent user selection */
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* default */
+  font-family: Tahoma;
+  font-size:13px;
+  color: #555;
+  text-decoration: none;
+}
+
+div[data-tree-model] ul {
+  margin: 0;
+  padding: 0;
+  list-style: none; 
+  border: none;
+  overflow: hidden;
+}
+
+div[data-tree-model] li {
+  position: relative;
+  padding: 0 0 0 20px;
+  line-height: 20px;
+}
+
+div[data-tree-model] li .expanded {
+  padding: 1px 10px;
+  background-image: url("http://cfile23.uf.tistory.com/image/205B973A50C13F4B19D9BD");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .collapsed {
+  padding: 1px 10px;
+  background-image: url("http://cfile23.uf.tistory.com/image/1459193A50C13F4B1B05FB");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li .normal {
+  padding: 1px 10px;
+  background-image: url("http://cfile23.uf.tistory.com/image/165B663A50C13F4B196CCA");
+  background-repeat: no-repeat;
+}
+
+div[data-tree-model] li i, div[data-tree-model] li span {
+  cursor: pointer;
+}
+
+div[data-tree-model] li .selected {
+  background-color: #aaddff;
+  font-weight: bold;
+  padding: 1px 5px;
+}
+
+.hidden {    
+    display: none!important;    
+    visibility: hidden!important;
+}
+
+.iscollapsed {
+   color : red;
+}
+
+  </style>
+  <!-- Angular Material style sheet -->
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <title>Ejemplito</title>
+</head>
+<body ng-app="exampleApp" ng-cloak>
+  
+  <div ng-controller="exampleCtrl" layout="column" ng-cloak style="height:400px;">
+
+  <md-toolbar md-scroll-shrink ng-if="true" ng-controller="TitleController">
+    <div class="md-toolbar-tools">
+      <h3>
+        <span>{{title}}</span>
+      </h3>
+    </div>
+  </md-toolbar>
+
+  <md-content flex>
+
+    <md-list>
+
+      <md-list-item class="md-3-line" ng-repeat="item in todos">
+        <img ng-src="{{item.face}}" alt="{{item.who}}" class="md-avatar">
+
+        <div class="md-list-item-text">
+          <h3><b>Item # {{item.number}}: </b>{{item.what}}</h3>
+          <h4>{{item.who}}</h4>
+
+          <p>
+            {{item.notes}}
+          </p>
+        </div>
+        <md-divider inset></md-divider>
+      </md-list-item>
+
+    </md-list>
+
+  </md-content>
+
+  </div>
+
+  <div>
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h3>
+        <span>Implementación del arbolito</span>
+      </h3>
+    </div>
+  </md-toolbar>
+
+  <md-content ng-controller="treeController">
+
+ 
+  <script type="text/ng-template" id="nodes_renderer.html">
+  <div ui-tree-handle class="tree-node tree-node-content" style="cursor:auto">
+    <a ng-if="node.nodes && node.nodes.length > 0" data-nodrag ng-click="toggle(this)"><span
+        
+        ng-class="{
+          'fa fa-folder-open': !collapsed,
+          'fa fa-folder': collapsed
+          }"></span></a>
+    <i ng-class="{'fa fa-phone-square':node.nodes && node.nodes.length === 0}" aria-hidden="true"></i>
+    <a href="#" ng-click="decideDestiny(node)" ng-bind="getTitle(node)"></a>
+  </div>
+  <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
+    <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">
+    </li>
+  </ol>
+  </script>
+
+  <button ng-click="expandAll()">Expand all</button>
+  <button ng-click="collapseAll()">Collapse all</button>
+  <div ui-tree id="tree-root" data-drag-enabled=false>
+      <ol ui-tree-nodes ng-model="list">
+        <li ng-repeat="node in list" ui-tree-node ng-include="'nodes_renderer.html'" style="margin-left: 20px"
+        ng-show="visible(node)"></li>
+      </ol>
+  </div>
+
+  <p>Buscar por Caso: <input ng-model="query" ng-change="findNodes()"></p>
+
+
+  <!--div ui-tree>
+  <ol ui-tree-nodes="" ng-model="list">
+    <li ng-repeat="item in list" ui-tree-node ng-click="parentClick(item)"  >
+      <div ui-tree-handle>
+        <i class="fa  fa-folder" aria-hidden="true"></i>{{item.title}}
+      </div>
+      <ol ui-tree-nodes="" ng-model="item.nodes">
+        <li ng-repeat="subItem in item.nodes" ui-tree-node ng-dblclick="childClick()">
+          <div ui-tree-handle>
+            <i class="fa fa-phone-square" aria-hidden="true"></i>{{subItem.title}}
+          </div>
+        </li>
+      </ol>
+    </li>
+  </ol>
+  </div!-->
+
+  
+  </md-content>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+  <!-- Angular Material Library -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
